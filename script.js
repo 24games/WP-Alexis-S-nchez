@@ -1,5 +1,5 @@
 // ============================================
-// CONFIGURAÇÕES INICIAIS E SELEÇÃO DE ELEMENTOS
+// CONFIGURAÇÕES INICIAIS E SELEÇÃO DE ELEMENTOS - Ramon
 // ============================================
 
 const header = document.getElementById('header');
