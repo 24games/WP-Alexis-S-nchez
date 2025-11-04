@@ -38,7 +38,7 @@
                         <li><a href="#galeria" class="nav-link">Galeria</a></li>
                     </ul>
                     <button class="btn-nav" id="btnGaleria">Ver Galeria</button>
-                    <button class="menu-toggle" id="menuToggle">
+                    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu de navegação" aria-expanded="false">
                         <span></span>
                         <span></span>
                         <span></span>
@@ -248,7 +248,7 @@
     </section>
 
     <!-- Lightbox Modal -->
-    <div class="lightbox" id="lightbox">
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-labelledby="lightboxCaption" aria-hidden="true">
         <button class="lightbox-close" id="lightboxClose" aria-label="Fechar">
             <i class="fas fa-times"></i>
         </button>
@@ -259,7 +259,7 @@
             <i class="fas fa-chevron-right"></i>
         </button>
         <div class="lightbox-content">
-            <img id="lightboxImage" src="" alt="">
+            <img id="lightboxImage" src="" alt="" role="img">
             <p class="lightbox-caption" id="lightboxCaption"></p>
         </div>
     </div>
@@ -280,6 +280,16 @@
                 <div class="footer-section">
                     <h3>Fontes e Créditos</h3>
                     <p>Conteúdo baseado em informações da FIFA e sites esportivos oficiais.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Enlaces Legales</h3>
+                    <p style="margin-bottom: 10px;">
+                        <a href="privacy-policy.html" target="_blank" style="color: rgba(255, 255, 255, 0.8); text-decoration: underline; display: block; margin-bottom: 8px;">Política de Privacidade</a>
+                        <a href="terms-and-conditions.html" target="_blank" style="color: rgba(255, 255, 255, 0.8); text-decoration: underline; display: block;">Termos e Condições</a>
+                    </p>
+                    <p style="font-size: 12px; color: #999; margin-top: 15px; line-height: 1.5;">
+                        ⚠️ Este site é apenas informativo e não oferece, promete ou intermedia ganhos financeiros de qualquer natureza.
+                    </p>
                 </div>
             </div>
             <div class="footer-bottom">

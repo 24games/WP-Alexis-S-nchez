@@ -1,4 +1,20 @@
 // ============================================
+// UTILITÁRIOS: DEBOUNCE FUNCTION
+// ============================================
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// ============================================
 // CONFIGURAÇÕES INICIAIS E SELEÇÃO DE ELEMENTOS - Ramon
 // ============================================
 
@@ -15,13 +31,15 @@ const fadeElements = document.querySelectorAll('.fade-in');
 // ============================================
 
 if (header) {
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 100) {
+    const headerScrollHandler = debounce(() => {
+        const scrolled = window.scrollY || window.pageYOffset;
+        if (scrolled > 100) {
             header.classList.add('scrolled');
         } else {
             header.classList.remove('scrolled');
         }
-    });
+    }, 10);
+    window.addEventListener('scroll', headerScrollHandler);
 }
 
 // ============================================
@@ -30,9 +48,10 @@ if (header) {
 
 if (menuToggle && navList) {
     menuToggle.addEventListener('click', () => {
+        const isActive = navList.classList.toggle('active');
         menuToggle.classList.toggle('active');
-        navList.classList.toggle('active');
-        document.body.style.overflow = navList.classList.contains('active') ? 'hidden' : '';
+        menuToggle.setAttribute('aria-expanded', isActive.toString());
+        document.body.style.overflow = isActive ? 'hidden' : '';
     });
 }
 
@@ -42,6 +61,7 @@ if (navLinks && navLinks.length > 0 && menuToggle && navList) {
         link.addEventListener('click', () => {
             navList.classList.remove('active');
             menuToggle.classList.remove('active');
+            menuToggle.setAttribute('aria-expanded', 'false');
             document.body.style.overflow = '';
         });
     });
@@ -53,6 +73,7 @@ if (nav && navList && menuToggle) {
         if (!nav.contains(e.target) && navList.classList.contains('active')) {
             navList.classList.remove('active');
             menuToggle.classList.remove('active');
+            menuToggle.setAttribute('aria-expanded', 'false');
             document.body.style.overflow = '';
         }
     });
@@ -179,8 +200,8 @@ achievementCards.forEach((card, index) => {
 // ANIMAÇÃO STAGGER PARA GALERIA
 // ============================================
 
-const galleryItems = document.querySelectorAll('.gallery-item');
-galleryItems.forEach((item, index) => {
+const galleryItemsForAnimation = document.querySelectorAll('.gallery-item');
+galleryItemsForAnimation.forEach((item, index) => {
     item.style.transitionDelay = `${index * 0.1}s`;
 });
 
@@ -190,16 +211,24 @@ galleryItems.forEach((item, index) => {
 
 const heroImage = document.querySelector('.hero-image');
 if (heroImage) {
-    window.addEventListener('scroll', () => {
-        const scrolled = window.pageYOffset;
-        const heroSection = document.querySelector('.hero');
-        if (heroSection) {
-            const heroHeight = heroSection.offsetHeight;
-            if (scrolled < heroHeight) {
-                heroImage.style.transform = `translateY(${scrolled * 0.5}px)`;
+    const heroSection = document.querySelector('.hero');
+    // Usar requestAnimationFrame para melhor performance no parallax
+    let rafId = null;
+    const parallaxHandler = () => {
+        if (rafId) return;
+        rafId = requestAnimationFrame(() => {
+            if (heroSection) {
+                const scrolled = window.scrollY || window.pageYOffset;
+                const heroHeight = heroSection.offsetHeight;
+                if (scrolled < heroHeight) {
+                    heroImage.style.transform = `translateY(${scrolled * 0.5}px)`;
+                }
             }
-        }
-    });
+            rafId = null;
+        });
+    };
+    
+    window.addEventListener('scroll', parallaxHandler);
 }
 
 // ============================================
@@ -228,7 +257,7 @@ const sections = document.querySelectorAll('section[id]');
 const highlightMenu = () => {
     if (!navLinks || navLinks.length === 0) return;
     
-    const scrollY = window.pageYOffset;
+    const scrollY = window.scrollY || window.pageYOffset;
 
     sections.forEach(section => {
         const sectionHeight = section.offsetHeight;
@@ -246,8 +275,11 @@ const highlightMenu = () => {
     });
 };
 
+// Aplicar debounce em funções de scroll
+const debouncedHighlightMenu = debounce(highlightMenu, 100);
+
 if (sections && sections.length > 0) {
-    window.addEventListener('scroll', highlightMenu);
+    window.addEventListener('scroll', debouncedHighlightMenu);
 }
 
 // ============================================
@@ -269,29 +301,11 @@ if (navList && menuToggle) {
         if (e.key === 'Escape' && navList.classList.contains('active')) {
             navList.classList.remove('active');
             menuToggle.classList.remove('active');
+            menuToggle.setAttribute('aria-expanded', 'false');
             document.body.style.overflow = '';
         }
     });
 }
-
-// ============================================
-// PERFORMANCE: DEBOUNCE PARA EVENTOS DE SCROLL
-// ============================================
-
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// Aplicar debounce em funções de scroll se necessário
-const debouncedHighlightMenu = debounce(highlightMenu, 100);
 
 // ============================================
 // LIGHTBOX PARA GALERIA
@@ -332,20 +346,27 @@ function openLightbox(index) {
     currentImageIndex = index;
     updateLightboxImage();
     lightbox.classList.add('active');
+    lightbox.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
+    // Focar no botão de fechar para acessibilidade
+    if (lightboxClose) {
+        lightboxClose.focus();
+    }
 }
 
 function closeLightbox() {
     if (!lightbox) return;
     lightbox.classList.remove('active');
+    lightbox.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
 }
 
 function updateLightboxImage() {
     if (!lightboxImage || !lightboxCaption || images.length === 0) return;
     lightboxImage.src = images[currentImageIndex].src;
-    lightboxImage.alt = images[currentImageIndex].alt;
+    lightboxImage.alt = images[currentImageIndex].alt || images[currentImageIndex].caption;
     lightboxCaption.textContent = images[currentImageIndex].caption;
+    lightboxCaption.id = 'lightboxCaption'; // Garantir que o ID está correto para aria-labelledby
 }
 
 function showNextImage() {
@@ -392,13 +413,15 @@ if (lightboxClose && lightboxNext && lightboxPrev) {
 const scrollToTopBtn = document.getElementById('scrollToTop');
 
 if (scrollToTopBtn) {
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 500) {
+    const scrollTopHandler = debounce(() => {
+        const scrolled = window.scrollY || window.pageYOffset;
+        if (scrolled > 500) {
             scrollToTopBtn.classList.add('visible');
         } else {
             scrollToTopBtn.classList.remove('visible');
         }
-    });
+    }, 10);
+    window.addEventListener('scroll', scrollTopHandler);
 
     scrollToTopBtn.addEventListener('click', () => {
         window.scrollTo({

@@ -628,12 +628,30 @@ body {
     color: rgba(255, 255, 255, 0.8);
 }
 
-
 .footer-bottom {
     text-align: center;
     padding-top: 30px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     color: rgba(255, 255, 255, 0.6);
+}
+
+.footer-bottom a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.footer-bottom a:hover {
+    color: var(--color-red);
+    text-decoration: underline;
+}
+
+.footer-section a {
+    transition: var(--transition);
+}
+
+.footer-section a:hover {
+    color: var(--color-red) !important;
 }
 
 /* ============================================
